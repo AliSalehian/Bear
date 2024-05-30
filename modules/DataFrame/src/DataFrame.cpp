@@ -23,11 +23,51 @@ bool DataFrame::empty()
     return this->data.empty();
 }
 
+bool DataFrame::changeColumn(std::string oldColumnName, std::string newColumnName)
+{
+    auto position = std::find(this->columns.begin(), this->columns.end(), oldColumnName);
+    if (position == this->columns.end())
+    {
+        return false;
+    }
+    this->columns[std::distance(this->columns.begin(), position)] = newColumnName;
+    return true;
+}
+
+bool DataFrame::changeColumn(int index, std::string newColumnName)
+{
+    if (index >= this->columns.size())
+    {
+        return false;
+    }
+    this->columns[index] = newColumnName;
+    return true;
+}
+
+bool DataFrame::changeAllColumns(std::vector<std::string> newColumns)
+{
+    if (newColumns.size() != this->columns.size())
+    {
+        return false;
+    }
+    this->columns = newColumns;
+    return true;
+}
+
+std::vector<std::string> DataFrame::getColumns()
+{
+    return this->columns;
+}
+
+std::vector<std::vector<std::string>> DataFrame::getData()
+{
+    return this->data;
+}
+
 std::ostream &operator<<(std::ostream &os, const DataFrame &df)
 {
     auto numberOfRows = df.data.size();
     auto numberOfcolumns = df.data[0].size();
-    std::cout << "number of columns: " << numberOfcolumns << std::endl;
     std::vector<int> columnWidths(numberOfcolumns, 0);
     for (int j = 0; j < numberOfcolumns; ++j)
     {
@@ -36,7 +76,11 @@ std::ostream &operator<<(std::ostream &os, const DataFrame &df)
             int numDigits = df.data[i][j].length();
             columnWidths[j] = std::max(columnWidths[j], numDigits);
         }
-        std::cout << "max size " << j << ": " << columnWidths[j] << std::endl;
+    }
+    for (int i = 0; i < df.columns.size(); i++)
+    {
+        int numDigits = df.columns[i].length();
+        columnWidths[i] = std::max(columnWidths[i], numDigits);
     }
 
     auto generateHorizontalLine = [&](int cols, const std::vector<int> &columnWidths)

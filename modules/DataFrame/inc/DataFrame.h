@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <vector>
-#include <iomanip>
+#include <algorithm>
 
 class DataFrame
 {
@@ -12,6 +12,12 @@ public:
     DataFrame head(uint32_t numberOfHead);
     DataFrame tail(uint32_t numberOfTail);
     bool empty();
+    bool changeColumn(std::string oldColumnName, std::string newColumnName);
+    bool changeColumn(int index, std::string newColumnName);
+    bool changeAllColumns(std::vector<std::string> newColumns);
+    std::vector<std::string> getRow(int index);
+    std::vector<std::string> getColumns();
+    std::vector<std::vector<std::string>> getData();
 
 private:
     std::vector<std::vector<std::string>> data;
