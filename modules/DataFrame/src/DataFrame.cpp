@@ -6,6 +6,10 @@ DataFrame::DataFrame(std::vector<std::string> columns, std::vector<std::vector<s
 
 DataFrame DataFrame::head(uint32_t numberOfHead)
 {
+    if (numberOfHead >= this->data.size())
+    {
+        throw std::out_of_range("Requested index is out of range. Requested index: " + std::to_string(numberOfHead) + ", number of rows: " + std::to_string(this->data.size()));
+    }
     std::vector<std::vector<std::string>> newData(this->data.begin(), this->data.begin() + numberOfHead);
     DataFrame result(this->columns, newData);
     return result;
@@ -13,6 +17,10 @@ DataFrame DataFrame::head(uint32_t numberOfHead)
 
 DataFrame DataFrame::tail(uint32_t numberOfTail)
 {
+    if (numberOfTail >= this->data.size())
+    {
+        throw std::out_of_range("Requested index is out of range. Requested index: " + std::to_string(numberOfTail) + ", number of rows: " + std::to_string(this->data.size()));
+    }
     std::vector<std::vector<std::string>> newData(this->data.end() - numberOfTail, this->data.end());
     DataFrame result(this->columns, newData);
     return result;
@@ -34,24 +42,31 @@ bool DataFrame::changeColumn(std::string oldColumnName, std::string newColumnNam
     return true;
 }
 
-bool DataFrame::changeColumn(int index, std::string newColumnName)
+void DataFrame::changeColumn(int index, std::string newColumnName)
 {
     if (index >= this->columns.size())
     {
-        return false;
+        throw std::out_of_range("Requested column by index is out of range. Requested index: " + std::to_string(index) + ", number of rows: " + std::to_string(this->columns.size()));
     }
     this->columns[index] = newColumnName;
-    return true;
 }
 
-bool DataFrame::changeAllColumns(std::vector<std::string> newColumns)
+void DataFrame::changeAllColumns(std::vector<std::string> newColumns)
 {
     if (newColumns.size() != this->columns.size())
     {
-        return false;
+        throw std::out_of_range("Size of new columns are not equal with existing columns. New columns size: " + std::to_string(newColumns.size()) + ", existing columns size: " + std::to_string(this->columns.size()));
     }
     this->columns = newColumns;
-    return true;
+}
+
+std::vector<std::string> DataFrame::getRow(int index)
+{
+    if (index >= this->data.size())
+    {
+        throw std::out_of_range("Requested row by index is out of range. Requested index: " + std::to_string(index) + ", number of rows: " + std::to_string(this->data.size()));
+    }
+    return this->data[index];
 }
 
 std::vector<std::string> DataFrame::getColumns()

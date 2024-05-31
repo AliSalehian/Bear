@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
 
 class DataFrame
 {
@@ -13,8 +14,8 @@ public:
     DataFrame tail(uint32_t numberOfTail);
     bool empty();
     bool changeColumn(std::string oldColumnName, std::string newColumnName);
-    bool changeColumn(int index, std::string newColumnName);
-    bool changeAllColumns(std::vector<std::string> newColumns);
+    void changeColumn(int index, std::string newColumnName);
+    void changeAllColumns(std::vector<std::string> newColumns);
     std::vector<std::string> getRow(int index);
     std::vector<std::string> getColumns();
     std::vector<std::vector<std::string>> getData();
