@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include "DataFrame.h"
+#include "CommaSeparatedValue.h"
 
 int main(int, char **)
 {
@@ -13,19 +15,44 @@ int main(int, char **)
     DataFrame df(column, data);
     std::cout << df << std::endl;
     std::cout << "***************************************************" << std::endl;
-    if (df.changeColumn(0, "AAAAAAAAAAAAAAAAA1"))
+    try
+    {
+        df.changeColumn(0, "AAAAAAAAAAAAAAAAA1");
         std::cout << df.head(2) << std::endl;
-    else
-        std::cout << "failed to change columns via index" << std::endl;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Exception caught: " << e.what() << std::endl;
+    }
     std::cout << "***************************************************" << std::endl;
-    if(df.changeColumn("AAAAAAAAAAAAAAAAA1", "AA1"))
+    if (df.changeColumn("AAAAAAAAAAAAAAAAA1", "AA1"))
+    {
         std::cout << df.tail(2) << std::endl;
+    }
     else
+    {
         std::cout << "failed to change coulmns via old name" << std::endl;
+    }
     std::cout << "***************************************************" << std::endl;
     std::vector<std::string> newColumns{"A3", "A1", "A2"};
-    if(df.changeAllColumns(newColumns))
+    try
+    {
+        df.changeAllColumns(newColumns);
         std::cout << df.tail(3) << std::endl;
-    else    
-        std::cout << "failed to change all columns" << std::endl;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Exception caught: " << e.what() << std::endl;
+    }
+    std::cout << "***************************************************" << std::endl;
+    auto row1 = df.getRow(1);
+    for (const auto cell : row1)
+    {
+        std::cout << cell << ", ";
+    }
+    std::cout << "\n";
+    std::cout << "***************************************************" << std::endl;
+
+    CommaSeparatedValue csv("/home/freakydad/project/personal/business-operations-survey-2022-business-finance.csv");
+    std::cout << csv.df->tail(5) << std::endl;
 }
