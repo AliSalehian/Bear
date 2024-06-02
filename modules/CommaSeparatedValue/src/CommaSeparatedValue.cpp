@@ -6,6 +6,7 @@ CommaSeparatedValue::CommaSeparatedValue(std::string csvFilePath)
     std::vector<std::vector<std::string>> data;
     std::string line;
     bool firstRow = true;
+    size_t columnsSize;
     std::ifstream file(csvFilePath);
 
     if (file.is_open())
@@ -15,10 +16,16 @@ CommaSeparatedValue::CommaSeparatedValue(std::string csvFilePath)
             if (firstRow)
             {
                 columns = this->splitStringByComma(line);
+                columnsSize = columns.size();
                 firstRow = false;
             }
             else
             {
+                auto newLine = this->splitStringByComma(line);
+                if (newLine.size() != columnsSize)
+                {
+                    throw std::out_of_range("bad csv file. line " + std::to_string(data.size()) + " has " + std::to_string(newLine.size()) + " while we have " + std::to_string(columnsSize) + " columns.");
+                }
                 data.push_back(this->splitStringByComma(line));
             }
         }
@@ -29,6 +36,18 @@ CommaSeparatedValue::CommaSeparatedValue(std::string csvFilePath)
         std::cerr << "Unable to open file: " << csvFilePath << std::endl;
     }
     this->df.reset(new DataFrame(columns, data));
+}
+
+CommaSeparatedValue::CommaSeparatedValue(DataFrame df)
+{
+    if (!df.empty())
+    {
+        this->df.reset(new DataFrame(df));
+    }
+    else
+    {
+        throw std::runtime_error("provided Dataframe is empty. CSV class cannot be created");
+    }
 }
 
 std::vector<std::string> CommaSeparatedValue::splitStringByComma(const std::string &str)
@@ -57,4 +76,52 @@ std::vector<std::string> CommaSeparatedValue::splitStringByComma(const std::stri
     boost::algorithm::trim(current);
     result.push_back(current); // Add the last segment
     return result;
+}
+
+void CommaSeparatedValue::save(std::string path)
+{
+    std::ofstream outputFile(path);
+    if (outputFile.is_open())
+    {
+        std::string headerLine;
+        for (const auto header : this->df->getColumns())
+        {
+            if (header.find(",") != std::string::npos)
+            {
+                headerLine += "\"" + header + "\"";
+            }
+            else
+            {
+                headerLine += header;
+            }
+            headerLine += ",";
+        }
+        headerLine.pop_back();
+        headerLine += "\n";
+        outputFile << headerLine;
+
+        for (const auto row : this->df->getData())
+        {
+            std::string line;
+            for (const auto cell : row)
+            {
+                if (cell.find(",") != std::string::npos)
+                {
+                    line += "\"" + cell + "\"";
+                }
+                else
+                {
+                    line += cell;
+                }
+                line += ",";
+            }
+            line.pop_back();
+            line += "\n";
+            outputFile << line;
+        }
+    }
+    else
+    {
+        throw std::runtime_error("can not save csv file because \"" + path + "\" cannot be created!");
+    }
 }
