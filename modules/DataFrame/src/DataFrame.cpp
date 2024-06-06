@@ -4,9 +4,9 @@ DataFrame::DataFrame(std::vector<std::string> columns, std::vector<std::vector<s
 {
 }
 
-DataFrame DataFrame::head(uint32_t numberOfHead)
+DataFrame DataFrame::head(uint32_t numberOfHead) const
 {
-    if (numberOfHead >= this->data.size())
+    if (numberOfHead >= this->data.size() || numberOfHead <= 0)
     {
         throw std::out_of_range("Requested index is out of range. Requested index: " + std::to_string(numberOfHead) + ", number of rows: " + std::to_string(this->data.size()));
     }
@@ -15,9 +15,9 @@ DataFrame DataFrame::head(uint32_t numberOfHead)
     return result;
 }
 
-DataFrame DataFrame::tail(uint32_t numberOfTail)
+DataFrame DataFrame::tail(uint32_t numberOfTail) const
 {
-    if (numberOfTail >= this->data.size())
+    if (numberOfTail >= this->data.size() || numberOfTail <= 0)
     {
         throw std::out_of_range("Requested index is out of range. Requested index: " + std::to_string(numberOfTail) + ", number of rows: " + std::to_string(this->data.size()));
     }
@@ -26,7 +26,7 @@ DataFrame DataFrame::tail(uint32_t numberOfTail)
     return result;
 }
 
-bool DataFrame::empty()
+bool DataFrame::empty() const
 {
     return this->data.empty();
 }
@@ -60,7 +60,7 @@ void DataFrame::changeAllColumns(std::vector<std::string> newColumns)
     this->columns = newColumns;
 }
 
-std::vector<std::string> DataFrame::getRow(int index)
+std::vector<std::string> DataFrame::getRow(int index) const
 {
     if (index >= this->data.size())
     {
@@ -69,12 +69,12 @@ std::vector<std::string> DataFrame::getRow(int index)
     return this->data[index];
 }
 
-std::vector<std::string> DataFrame::getColumns()
+std::vector<std::string> DataFrame::getColumns() const
 {
     return this->columns;
 }
 
-std::vector<std::vector<std::string>> DataFrame::getData()
+std::vector<std::vector<std::string>> DataFrame::getData() const
 {
     return this->data;
 }
@@ -126,4 +126,31 @@ std::ostream &operator<<(std::ostream &os, const DataFrame &df)
            << generateHorizontalLine(numberOfcolumns, columnWidths) << std::endl;
     }
     return os;
+}
+
+bool DataFrame::operator==(DataFrame &df)
+{
+    if (this->columns.size() == df.columns.size() && this->data.size() == df.data.size())
+    {
+        for (int i = 0; i < this->columns.size(); ++i)
+        {
+            if (this->columns[i] != df.columns[i])
+            {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < this->data.size(); ++i)
+        {
+            for (int j = 0; j < this->data[0].size(); ++j)
+            {
+                if (this->data[i][j] != df.data[i][j])
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    return false;
 }
