@@ -31,22 +31,29 @@ bool DataFrame::empty() const
     return this->data.empty();
 }
 
-bool DataFrame::changeColumn(std::string oldColumnName, std::string newColumnName)
+void DataFrame::changeColumn(std::string oldColumnName, std::string newColumnName)
 {
     auto position = std::find(this->columns.begin(), this->columns.end(), oldColumnName);
     if (position == this->columns.end())
     {
-        return false;
+        std::string columnsString = "[";
+        for (const auto column : this->columns)
+        {
+            columnsString += "'" + column + "', ";
+        }
+        columnsString.pop_back();
+        columnsString.pop_back();
+        columnsString += "]";
+        throw std::invalid_argument("You want to change '" + oldColumnName + "' column, but it's not exist in columns of DataFrame. It has these columns: " + columnsString);
     }
     this->columns[std::distance(this->columns.begin(), position)] = newColumnName;
-    return true;
 }
 
 void DataFrame::changeColumn(int index, std::string newColumnName)
 {
-    if (index >= this->columns.size())
+    if (index >= this->columns.size() || index < 0)
     {
-        throw std::out_of_range("Requested column by index is out of range. Requested index: " + std::to_string(index) + ", number of rows: " + std::to_string(this->columns.size()));
+        throw std::out_of_range("Requested column by index is out of range. Requested index: " + std::to_string(index) + ", number of columns: " + std::to_string(this->columns.size()));
     }
     this->columns[index] = newColumnName;
 }
@@ -62,11 +69,50 @@ void DataFrame::changeAllColumns(std::vector<std::string> newColumns)
 
 std::vector<std::string> DataFrame::getRow(int index) const
 {
-    if (index >= this->data.size())
+    if (index >= this->data.size() || index < 0)
     {
         throw std::out_of_range("Requested row by index is out of range. Requested index: " + std::to_string(index) + ", number of rows: " + std::to_string(this->data.size()));
     }
     return this->data[index];
+}
+
+std::vector<std::string> DataFrame::getColumn(int index) const
+{
+    if (index >= this->columns.size() || index < 0)
+    {
+        throw std::out_of_range("Requested column by index is out of range. Requested index: " + std::to_string(index) + ", number of columns: " + std::to_string(this->columns.size()));
+    }
+    std::vector<std::string> result;
+    for (int i = 0; i < this->data.size(); i++)
+    {
+        for (int j = 0; j < this->data[0].size(); j++)
+        {
+            if (j == index)
+            {
+                result.emplace_back(data[i][j]);
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<std::string> DataFrame::getColumn(std::string columnName) const
+{
+    auto position = std::find(this->columns.begin(), this->columns.end(), columnName);
+    if (position == this->columns.end())
+    {
+        std::string columnsString = "[";
+        for (const auto column : this->columns)
+        {
+            columnsString += "'" + column + "', ";
+        }
+        columnsString.pop_back();
+        columnsString.pop_back();
+        columnsString += "]";
+        throw std::invalid_argument("You want to get '" + columnName + "' column, but it's not exist in columns of DataFrame. It has these columns: " + columnsString);
+    }
+    int index = position - this->columns.begin();
+    return this->getColumn(index);
 }
 
 std::vector<std::string> DataFrame::getColumns() const
