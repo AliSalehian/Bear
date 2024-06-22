@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
+#include <filesystem>
 #include <boost/algorithm/string.hpp>
 #include "DataFrame.h"
 

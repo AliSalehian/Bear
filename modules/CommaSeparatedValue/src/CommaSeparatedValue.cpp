@@ -7,8 +7,18 @@ CommaSeparatedValue::CommaSeparatedValue(std::string csvFilePath)
     std::string line;
     bool firstRow = true;
     size_t columnsSize;
-    std::ifstream file(csvFilePath);
 
+    if (!std::filesystem::exists(csvFilePath))
+    {
+        throw std::runtime_error("\"" + csvFilePath + "\" does not exists!");
+    }
+    std::filesystem::path filePath = csvFilePath;
+    if (filePath.extension() != ".csv")
+    {
+        throw std::runtime_error("\"" + csvFilePath + "\" is not a csv file!");
+    }
+
+    std::ifstream file(csvFilePath);
     if (file.is_open())
     {
         while (std::getline(file, line))
@@ -33,7 +43,7 @@ CommaSeparatedValue::CommaSeparatedValue(std::string csvFilePath)
     }
     else
     {
-        std::cerr << "Unable to open file: " << csvFilePath << std::endl;
+        throw std::runtime_error("Unable to open file: " + csvFilePath);
     }
     this->df.reset(new DataFrame(columns, data));
 }
